@@ -1,7 +1,22 @@
-import { server } from './app';
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import { schema } from './schemas/schema';
+import { AppDataSource } from './utils/db';
+import dotenv from 'dotenv';
 
-const PORT = process.env.PORT || 3000;
+dotenv.config();
+const app = express();
 
-server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  await AppDataSource.initialize();
+  const apolloServer = new ApolloServer({ schema });
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app });
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}${apolloServer.graphqlPath}`);
+  });
+}
+
+startServer().catch((error) => console.error('Error starting server:', error));
