@@ -3,20 +3,29 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generateFromSchema": "graphql-codegen --config codegen.yml",
+    "compile": "rimraf dist && graphql-codegen --config codegen.yml && tsc",
+    "startAfterBuild": "npm run compile && node ./dist/index.js",
+    "start": "node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "@graphql-tools/mock": "^9.0.5",
+    "@graphql-tools/schema": "^10.0.7",
     "apollo-server-express": "^3.13.0",
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "graphql": "^16.9.0",
+    "graphql-scalars": "^1.23.0",
+    "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.1.7",
     "sqlite3": "^5.1.7",
     "ts-node": "^10.9.2",
     "typeorm": "^0.3.20",
@@ -24,12 +33,18 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/typescript": "^4.1.0",
+    "@graphql-codegen/typescript-resolvers": "^4.3.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.7.9",
+    "@types/node": "^22.8.0",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.12",
+    "concurrently": "^9.0.1",
+    "nodemon": "^3.1.7",
     "typescript": "^5.6.3"
   }
 }

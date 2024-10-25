@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Room } from './room';
-import { v4 as uuidv4 } from 'uuid';
+import { RoomORM } from './roomORM';
+import { v4 as uuid4 } from 'uuid';
 
 @Entity()
-export class Player {
+export class PlayerORM {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -13,11 +13,11 @@ export class Player {
   @Column()
   password: string;
 
-  @ManyToOne(() => Room, (room) => room.players, { nullable: true })
-  room?: Room;
+  @ManyToOne(() => RoomORM, (room) => room.players, { nullable: true })
+  room?: RoomORM;
 
   constructor(username: string, password: string) {
-    this.id = uuidv4();
+    this.id = uuid4();
     this.username = username;
     this.password = password;
   }
