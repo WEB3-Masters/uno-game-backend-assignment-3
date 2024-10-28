@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
 import { PlayerORM } from './playerORM';
 import { DeckORM } from './deckORM';
 import { v4 as uuid4 } from 'uuid';
@@ -17,6 +17,8 @@ export class RoomORM {
 
   @Column({ default: 'waiting' })
   roomState: 'waiting' | 'in-progress' | 'completed';
+    discardPile: any;
+    hands: any;
 
   constructor(host: PlayerORM, deck: DeckORM) {
     this.id = uuid4();

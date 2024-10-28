@@ -63,7 +63,7 @@ type Hand {
 type Query {
     player(id: UUID!): Player
     players: [Player!]!
-    room(id: ID!): Room
+    room(id: UUID!): Room
     rooms: [Room!]!
 }
 
@@ -75,13 +75,13 @@ type Mutation {
     loginPlayer(username: String!, password: String!): String
 
     # Creates a new game with the host's player ID
-    createRoom(hostId: Int!): Room!
-    deleteRoom(id: ID!): Boolean
+    createRoom(hostId: UUID!): Room!
+    deleteRoom(id: UUID!): Boolean
 
     # Allows a player to join a game
-    joinRoom(gameId: Int!, playerId: Int!): Room!
+    joinRoom(roomId: UUID!, playerId: UUID!): Room!
 
     # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
-    #playHand(gameId: Int!, nextPlayerId: Int!, cards: [String!]!): Game!
+    playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Game!
 }
 

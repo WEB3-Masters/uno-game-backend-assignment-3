@@ -1,13 +1,14 @@
 {
   "name": "uno-game-backend-assignment-3",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "generateFromSchema": "graphql-codegen --config codegen.yml",
     "compile": "rimraf dist && graphql-codegen --config codegen.yml && tsc",
-    "startAfterBuild": "npm run compile && node ./dist/index.js",
-    "start": "node ./dist/index.js"
+    "startAfterBuild": "npm run compile && node ./dist/server.js",
+    "start": "node ./dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -45,6 +46,7 @@
     "@types/ws": "^8.5.12",
     "concurrently": "^9.0.1",
     "nodemon": "^3.1.7",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.6.3"
   }
 }

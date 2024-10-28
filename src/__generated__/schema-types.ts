@@ -75,8 +75,8 @@ export type MutationDeleteRoomArgs = {
 
 
 export type MutationJoinRoomArgs = {
-  gameId: Scalars['Int']['input'];
-  playerId: Scalars['Int']['input'];
+  playerId: Scalars['UUID']['input'];
+  roomId: Scalars['UUID']['input'];
 };
 
 
@@ -99,6 +99,12 @@ export type Player = {
   username: Scalars['String']['output'];
 };
 
+export type MutationPlayHandArgs = {
+  cardId: Scalars['UUID']['input'];
+  playerId: Scalars['UUID']['input'];
+  roomId: Scalars['UUID']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   player?: Maybe<Player>;
@@ -114,7 +120,7 @@ export type QueryPlayerArgs = {
 
 
 export type QueryRoomArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars['UUID']['input'];
 };
 
 export type Room = {
@@ -262,9 +268,10 @@ export type HandResolvers<ContextType = any, ParentType extends ResolversParentT
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationCreateRoomArgs, 'hostId'>>;
   deleteRoom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteRoomArgs, 'id'>>;
-  joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'gameId' | 'playerId'>>;
+  joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'playerId' | 'roomId'>>;
   loginPlayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
   registerPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationRegisterPlayerArgs, 'password' | 'username'>>;
+  playHand?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationPlayHandArgs, 'cardId' | 'playerId' | 'roomId'>>;
 };
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = {

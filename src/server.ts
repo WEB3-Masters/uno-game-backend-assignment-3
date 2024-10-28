@@ -1,13 +1,13 @@
 import { ApolloServer } from '@apollo/server';
-import http from 'http'
-import {expressMiddleware} from "@apollo/server/express4"
-import express from "express"
+import http from 'http';
+import { expressMiddleware } from '@apollo/server/express4';
+import express from 'express';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import cors from "cors"
-import pkg from "body-parser"
-const {json} = pkg;
+import cors from 'cors';
+import pkg from 'body-parser';
+const { json } = pkg;
 /* Database data source */
-import { AppDataSource } from "./utils/db";
+import { AppDataSource } from './utils/db'
 /* Executable Schema */
 import { execSchema } from './execSchema';
 
