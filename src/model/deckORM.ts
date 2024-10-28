@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, OneToMany, OneToOne} from 'typeorm';
 import { CardORM } from './cardORM';
 import { v4 as uuid4 } from 'uuid';
 import {RoomORM} from "./roomORM";
@@ -14,7 +14,7 @@ export class DeckORM {
     @OneToOne(() => RoomORM, (room) => room.deck)
     room: RoomORM;
 
-    constructor(id: string = uuid4(), cards: CardORM[] = [], room: RoomORM) {
+    constructor(id: string = uuid4(), cards: CardORM[], room: RoomORM) {
         this.id = id;
         this.cards = cards;
         this.room = room;

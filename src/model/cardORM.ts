@@ -10,11 +10,11 @@ export class CardORM {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'enum', enum: ["SKIP", "NUMBERED", "REVERSE", "DRAW", "WILD", "WILD DRAW"] })
-    type: CardType;
+    @Column('text')
+    type: "SKIP" | "NUMBERED" | "REVERSE" | "DRAW" |  "WILD" | "WILD DRAW";
 
-    @Column({ type: 'enum', enum: ["BLUE", "GREEN", "RED", "YELLOW"], nullable: true })
-    color?: CardColor;
+    @Column('text')
+    color: "BLUE" | "GREEN" | "RED" | "YELLOW";
 
     @Column({ type: 'int', nullable: true })
     number?: number;
@@ -22,7 +22,7 @@ export class CardORM {
     @ManyToOne(() => DeckORM, (deck) => deck.cards)
     deck?: DeckORM;
 
-    constructor(type: CardType, color?: CardColor, number?: number) {
+    constructor(type: CardType, color: CardColor, number?: number) {
         this.id = uuid4();
         this.type = type;
         this.color = color;

@@ -65,12 +65,12 @@ export type Mutation = {
 
 
 export type MutationCreateRoomArgs = {
-  hostId: Scalars['Int']['input'];
+  hostId: Scalars['UUID']['input'];
 };
 
 
 export type MutationDeleteRoomArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars['UUID']['input'];
 };
 
 
@@ -97,12 +97,6 @@ export type Player = {
   password: Scalars['String']['output'];
   roomId?: Maybe<Scalars['UUID']['output']>;
   username: Scalars['String']['output'];
-};
-
-export type MutationPlayHandArgs = {
-  cardId: Scalars['UUID']['input'];
-  playerId: Scalars['UUID']['input'];
-  roomId: Scalars['UUID']['input'];
 };
 
 export type Query = {
@@ -271,7 +265,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'playerId' | 'roomId'>>;
   loginPlayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
   registerPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationRegisterPlayerArgs, 'password' | 'username'>>;
-  playHand?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationPlayHandArgs, 'cardId' | 'playerId' | 'roomId'>>;
 };
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = {

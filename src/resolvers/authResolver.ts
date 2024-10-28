@@ -17,5 +17,5 @@ export const loginPlayer = async ({ username, password }: { username: string; pa
     return { id: player.id };
   }
   
-  return { error: { message: "Invalid credetials!"}}
+  return { error: { message: "Invalid credentials!"}}
 };

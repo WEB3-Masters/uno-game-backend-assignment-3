@@ -7,7 +7,7 @@ import { CardORM } from '../model/cardORM';
 
 export const AppDataSource = new DataSource({
   type: 'sqlite',
-  database: './uno_game.db',
+  database: './src/utils/uno_game.db',
   entities: [DeckORM, CardORM, RoomORM, PlayerORM],
   synchronize: true,
 });

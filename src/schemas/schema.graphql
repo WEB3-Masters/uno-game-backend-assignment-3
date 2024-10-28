@@ -82,6 +82,6 @@ type Mutation {
     joinRoom(roomId: UUID!, playerId: UUID!): Room!
 
     # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
-    playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Game!
+    #playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Room!
 }
 

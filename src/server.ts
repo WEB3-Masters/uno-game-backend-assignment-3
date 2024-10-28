@@ -1,38 +1,18 @@
-import { ApolloServer } from '@apollo/server';
-import http from 'http';
-import { expressMiddleware } from '@apollo/server/express4';
-import express from 'express';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import cors from 'cors';
+// Initialize TypeORM data source
+import {AppDataSource} from "./utils/db";
+import express from "express";
+import http from "http";
+import {ApolloServer} from "@apollo/server";
+import {execSchema, MyContext} from "./execSchema";
+import {ApolloServerPluginDrainHttpServer} from "@apollo/server/plugin/drainHttpServer";
+import {expressMiddleware} from "@apollo/server/express4";
+import cors from "cors";
 import pkg from 'body-parser';
 const { json } = pkg;
-/* Database data source */
-import { AppDataSource } from './utils/db'
-/* Executable Schema */
-import { execSchema } from './execSchema';
 
-interface MyContext {
-  dataSource: typeof AppDataSource
-}
-
-//Create Express app/server
+//Create Express app/apolloServer
 const app = express();
-const httpServer = http.createServer(app);
-
-//Apply schema and plugins to server
-const server = new ApolloServer<MyContext>({
-  schema: execSchema,
-  introspection: true,
-  plugins: [ApolloServerPluginDrainHttpServer({httpServer})]
-});
-
-// Initialize TypeORM data source
-await AppDataSource.initialize().then(async () => {
-  console.log("Postgres TypeORM Database initialized");
-}).catch((error: any) => console.log(error));
-
-//Start server
-await server.start();
+const server = http.createServer(app);
 
 //Cors Options (May or may not be necessary)
 const corsOptions: cors.CorsOptions = {
@@ -42,19 +22,39 @@ const corsOptions: cors.CorsOptions = {
   optionsSuccessStatus: 204
 }
 
-//Apply express middleware, and run on route /graphql
-app.use(
-    '/graphql',
-    cors<cors.CorsRequest>(corsOptions),
-    json(),
-    expressMiddleware(server, {
-      context: async () => ({dataSource: AppDataSource})
-    })
-)
+async function startServer() {
+  await AppDataSource.initialize().then(async () => {
+    console.log("Database initialized");
+  }).catch((error: any) => console.log(error));
 
-// Run on Railway port or 8000 when ran locally
-const envPort = process.env.PORT
-const port = envPort && Number.parseInt(envPort) || 3000;
+  //Apply schema and plugins to apolloServer
+  const apolloServer = new ApolloServer<MyContext>({
+    schema: execSchema,
+    introspection: true,
+    plugins: [ApolloServerPluginDrainHttpServer({httpServer: server})]
+  });
 
-await new Promise<void>((resolve) => httpServer.listen({port: port}, resolve));
-console.log(`🚀 Server listening at: ${port}`);
+  await apolloServer.start();
+
+  //Apply express middleware, and run on route /graphql
+  app.use(
+      '/graphql',
+      cors<cors.CorsRequest>(corsOptions),
+      json(),
+      expressMiddleware(apolloServer, {
+        context: async () => ({dataSource: AppDataSource})
+      })
+  )
+
+  // Run on Railway port or 8000 when ran locally
+  const envPort = process.env.PORT
+  const port = envPort && Number.parseInt(envPort) || 3000;
+
+  await new Promise<void>((resolve) => server.listen({port: port}, resolve));
+  console.log(`🚀 Server listening at: ${port}`);
+}
+
+startServer().catch((error) => console.error('Error starting server:', error));
+
+
+

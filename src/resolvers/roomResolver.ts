@@ -69,7 +69,7 @@ export const playHand = async ({ roomId, playerId, cardId } : { roomId: string; 
   }
 
   // Update the game state (e.g., move the card to the discard pile)
-  room.discardPile.push(card);
+  room.discardPile.cards.push(card);
   room.deck.cards = room.deck.cards.filter(c => c.id !== card.id);
 
   // Save the updated state back to the database

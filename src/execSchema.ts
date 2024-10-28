@@ -8,6 +8,7 @@ import { AppDataSource } from "./utils/db";
 import { loginPlayer, registerPlayer } from './resolvers/authResolver';
 import { getPlayers, getPlayerById } from './resolvers/playerResolver';
 import { getRooms, getRoomById, deleteRoom, createRoom, joinGame, playHand } from 'resolvers/roomResolver';
+import {CardORM} from "./model/cardORM";
 
 // Interface we pass as argument in our resolvers so they can access data from our database
 export interface MyContext {
@@ -15,13 +16,23 @@ export interface MyContext {
 }
 
 // Read definitions of data types in our GraphQL schema
-const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
+const typeDefs = readFileSync('./src/schemas/schema.graphql', { encoding: 'utf-8' });
+
+const mapCardORMtoCard = (card: CardORM) : Card => {
+    return ({
+        id: card.id,
+        type: card.type as CardType,
+        color: card.color as CardColor,
+        number: card.number
+    })
+}
+
 
 // Our resolvers take a generated type "Resolvers" that conforms exactly
 // to the shape of our schema the last time we ran "generateFromSchema"
 const resolvers: Resolvers = {
     Query: {
-        players: async (parent, args, contextValue: MyContext, info) => {
+        players: async () => {
             const response =  await getPlayers();
 
             return response.map((player) : Player => {
@@ -33,8 +44,7 @@ const resolvers: Resolvers = {
                 }
             })
         },
-
-        player: async (parent, { id }, contextValue: MyContext, info) => {
+        player: async (_, { id }) => {
             const response = await getPlayerById(id);
 
             if (!response) {
@@ -48,8 +58,7 @@ const resolvers: Resolvers = {
                 roomId: response.room?.id
             }
         },
-
-        rooms: async (parent, args, contextValue: MyContext, info) => {
+        rooms: async () => {
             const response = await getRooms();
 
             return response.map((room) : Room => {
@@ -64,22 +73,14 @@ const resolvers: Resolvers = {
                     roomState: room.roomState as RoomState,
                     deck: {
                         id: room.deck.id,
-                        cards: Array.from(room.deck.cards).map((card) : Card => {
-                            return {
-                                id: card.id,
-                                type: card.type as CardType,
-                                color: card.color as CardColor,
-                                number: card.number
-                            }
-                        })
+                        cards: room.deck.cards.map(mapCardORMtoCard)
                     },
-                    discardPile: room.discardPile.map((card: any) : Card => ({  
-                        id: card.id,
-                        type: card.type as CardType,
-                        color: card.color as CardColor,
-                        number: card.number
-                    })),
-                    hands: room.hands.map((hand : any) => ({
+                    discardPile: {
+                        id: room.discardPile.id,
+                        cards: room.discardPile.cards.map(mapCardORMtoCard)
+                    },
+                    hands: []
+                    /*hands: room.hands.map((hand : any) => ({
                         playerId: hand.playerId,
                         cards: hand.cards.map((card : any) : Card => ({
                             id: card.id,
@@ -87,12 +88,11 @@ const resolvers: Resolvers = {
                             color: card.color as CardColor,
                             number: card.number
                         }))
-                    }))
+                    }))*/
                 }
             })
         },
-
-        room: async (parent, { id }, contextValue: MyContext, info) => {
+        room: async (_, { id }) => {
             const response = await getRoomById(id);
             if(!response) {
                 throw new Error("Room not found");
@@ -108,22 +108,14 @@ const resolvers: Resolvers = {
                 roomState: response.roomState as RoomState,
                 deck: {
                     id: response.deck.id,
-                    cards: Array.from(response.deck.cards).map((card) : Card => {
-                        return {
-                            id: card.id,
-                            type: card.type as CardType,
-                            color: card.color as CardColor,
-                            number: card.number
-                        }
-                    })
+                    cards: response.deck.cards.map(mapCardORMtoCard)
                 },
-                discardPile: response.discardPile.map((card: any) : Card => ({  
-                    id: card.id,
-                    type: card.type as CardType,
-                    color: card.color as CardColor,
-                    number: card.number
-                })),
-                hands: response.hands.map((hand : any) => ({
+                discardPile: {
+                    id: response.discardPile.id,
+                    cards: response.discardPile.cards.map(mapCardORMtoCard),
+                },
+                hands: [],
+                /*hands: response.hands.map((hand : any) => ({
                     playerId: hand.playerId,
                     cards: hand.cards.map((card : any) : Card => ({
                         id: card.id,
@@ -132,12 +124,12 @@ const resolvers: Resolvers = {
                         number: card.number
                     }))
                 }))
+                 */
             }
         }
-        //TODO: Implement resolvers for our queries
     },
     Mutation: {
-        loginPlayer: async (parent, { username, password }, contextValue: MyContext, info) => {
+        loginPlayer: async (_, { username, password }) => {
             const response = await loginPlayer({username, password});
 
             if (response.error) {
@@ -146,12 +138,10 @@ const resolvers: Resolvers = {
 
             return response.id;
         },
-
-        registerPlayer: async(parent, { username, password }, contextValue: MyContext, info) => {
+        registerPlayer: async(_, { username, password }) => {
             return await registerPlayer({ username, password });
         },
-
-        createRoom: async (parent, { hostId }, contextValue: MyContext, info) => {
+        createRoom: async (_, { hostId }, ) => {
             const player = await getPlayerById(hostId.toString());
             if (!player) {
                 throw new Error("Player not found");
@@ -169,22 +159,14 @@ const resolvers: Resolvers = {
                 roomState: response.roomState as RoomState,
                 deck: {
                     id: response.deck.id,
-                    cards: Array.from(response.deck.cards).map((card) : Card => {
-                        return {
-                            id: card.id,
-                            type: card.type as CardType,
-                            color: card.color as CardColor,
-                            number: card.number
-                        }
-                    })
+                    cards: response.deck.cards.map(mapCardORMtoCard),
                 },
-                discardPile: response.discardPile.map((card: any) : Card => ({  
-                    id: card.id,
-                    type: card.type as CardType,
-                    color: card.color as CardColor,
-                    number: card.number
-                })),
-                hands: response.hands.map((hand : any) => ({
+                discardPile: {
+                    id: response.discardPile.id,
+                    cards: response.discardPile.cards.map(mapCardORMtoCard),
+                },
+                hands: []
+                /*hands: response.hands.map((hand : any) => ({
                     playerId: hand.playerId,
                     cards: hand.cards.map((card : any) : Card => ({
                         id: card.id,
@@ -192,11 +174,10 @@ const resolvers: Resolvers = {
                         color: card.color as CardColor,
                         number: card.number
                     }))
-                }))
+                }))*/
             }
         },
-
-        joinRoom: async (parent, { roomId, playerId }, contextValue: MyContext, info) => {
+        joinRoom: async (_, { roomId, playerId }) => {
             const response = await joinGame({ roomId, playerId });
 
             return {
@@ -210,22 +191,14 @@ const resolvers: Resolvers = {
                 roomState: response.roomState as RoomState,
                 deck: {
                     id: response.deck.id,
-                    cards: Array.from(response.deck.cards).map((card) : Card => {
-                        return {
-                            id: card.id,
-                            type: card.type as CardType,
-                            color: card.color as CardColor,
-                            number: card.number
-                        }
-                    })
+                    cards: response.deck.cards.map(mapCardORMtoCard),
                 },
-                discardPile: response.discardPile.map((card: any) : Card => ({  
-                    id: card.id,
-                    type: card.type as CardType,
-                    color: card.color as CardColor,
-                    number: card.number
-                })),
-                hands: response.hands.map((hand : any) => ({
+                discardPile: {
+                    id: response.discardPile.id,
+                    cards: response.discardPile.cards.map(mapCardORMtoCard),
+                },
+                hands: []
+                /*hands: response.hands.map((hand : any) => ({
                     playerId: hand.playerId,
                     cards: hand.cards.map((card : any) : Card => ({
                         id: card.id,
@@ -233,15 +206,13 @@ const resolvers: Resolvers = {
                         color: card.color as CardColor,
                         number: card.number
                     }))
-                }))
+                }))*/
             };
         },
-
-        deleteRoom: async (parent, { id }, contextValue: MyContext, info) => {
+        deleteRoom: async (_, { id }) => {
             return await deleteRoom(id);
         },
-
-        playHand: async (parent, { roomId, playerId, cardId }, contextValue: MyContext, info) => {
+        /*playHand: async (parent, { roomId, playerId, cardId }, contextValue: MyContext, info) => {
             const success = await playHand({ roomId, playerId, cardId });
             if (!success) {
                 throw new Error("Failed to play hand");
@@ -286,12 +257,9 @@ const resolvers: Resolvers = {
                     }))
                 }))
             };
-        }
+        }*/
     }
-        //TODO: Implement resolvers for our mutations
 }
-
-    //TODO: Figure out how to implement resolvers for our custom scalars
 
 // A executable schema object that we pass directly to Apollo Server
 const schema = makeExecutableSchema({

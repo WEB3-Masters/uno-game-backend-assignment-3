@@ -13,7 +13,7 @@ npm install
 When the installation is done, you can start the server with:
 
 ```bash
-npx ts-node src/server.ts
+tsx src/server.ts
 ```
 
 The server will start on port 3000. You can change the port in the `src/server.ts` file.

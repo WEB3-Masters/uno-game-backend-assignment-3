@@ -7,10 +7,10 @@ export class PlayerORM {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column('text', { unique: true})
   username: string;
 
-  @Column()
+  @Column('text')
   password: string;
 
   @ManyToOne(() => RoomORM, (room) => room.players, { nullable: true })
