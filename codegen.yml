@@ -1,0 +1,22 @@
+# Indicate where our schema file is located
+schema: './src/schemas/schema.graphql'
+generates:
+  # Specify the file where our generated types should live
+  ./src/__generated__/schema-types.ts:
+    # Plugins that are necessary for generating types.
+    # Additional plugins (https://the-guild.dev/graphql/codegen/plugins)
+    plugins:
+      # Typescript: Generates Types from Schema
+      - 'typescript'
+      # Typescript-Resolvers: Generates types that facilitate creation
+      # of resolvers that populate schema with data.
+      - 'typescript-resolvers'
+    config:
+      # Defines how you would like certain types to be named
+      # (https://tinyurl.com/yrhfkraw)
+      namingConvention:
+        # Makes all enum values upper case
+        enumValues: change-case-all#upperCase
+      scalars:
+        # Specify that the UUID custom scalar will resolve to a string
+        UUID: string

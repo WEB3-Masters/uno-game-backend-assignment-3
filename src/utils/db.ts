@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { Room } from '../model/room';
-import { Player } from '../model/player';
+import { RoomORM } from '../model/roomORM';
+import { PlayerORM } from '../model/playerORM';
+import { DeckORM } from '../model/deckORM';
+import { CardORM } from '../model/cardORM';
 
 export const AppDataSource = new DataSource({
   type: 'sqlite',
-  database: './uno_game.db',
-  entities: [Room, Player],
+  database: './src/utils/uno_game.db',
+  entities: [DeckORM, CardORM, RoomORM, PlayerORM],
   synchronize: true,
 });

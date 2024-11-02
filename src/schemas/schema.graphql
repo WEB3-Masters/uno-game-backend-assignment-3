@@ -1,0 +1,91 @@
+scalar UUID
+
+# Enum for Card types and colors
+enum CardType {
+    SKIP
+    NUMBERED
+    REVERSE
+    DRAW
+    WILD
+    WILD_DRAW
+}
+
+enum CardColor {
+    BLUE
+    GREEN
+    RED
+    YELLOW
+}
+
+# Enum for Room states
+enum RoomState {
+    WAITING
+    IN_PROGRESS
+    COMPLETED
+}
+
+type Deck {
+    id: UUID!
+    cards: [Card!]!
+}
+
+type Card {
+    id: UUID!
+    type: CardType!
+    color: CardColor
+    number: Int
+    deck: Deck
+}
+
+type Player {
+    id: UUID!
+    username: String!
+    password: String!
+    roomId: UUID
+}
+
+type Room {
+    id: ID!
+    players: [Player!]!
+    deck: Deck
+    discardPile: Deck
+    roomState: RoomState
+    hands: [Hand!]
+    currentHand: Hand
+}
+
+type Hand {
+    playerId: UUID!
+    cards: [Card!]!
+}
+
+# Queries for fetching player(s)
+type Query {
+    player(id: UUID!): Player
+    players: [Player!]!
+    room(id: UUID!): Room
+    rooms: [Room!]!
+}
+
+type Mutation {
+    # Registers a new player with username and password
+    registerPlayer(username: String!, password: String!): Player!
+
+    # Authenticates a player and returns a token or similar string
+    loginPlayer(username: String!, password: String!): String
+
+    # Creates a new game with the host's player ID
+    createRoom(hostId: UUID!): Room!
+    deleteRoom(id: UUID!): Boolean
+
+    # Allows a player to join a game
+    joinRoom(roomId: UUID!, playerId: UUID!): Room!
+
+    # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
+    #playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Room!
+}
+
+type Subscription {
+  roomUpdated(roomId: UUID!): Room!
+}
+
