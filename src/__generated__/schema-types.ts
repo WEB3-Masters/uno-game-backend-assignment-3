@@ -120,9 +120,9 @@ export type QueryRoomArgs = {
 export type Room = {
   __typename?: 'Room';
   currentHand?: Maybe<Hand>;
-  deck: Deck;
-  discardPile: Deck;
-  hands: Array<Hand>;
+  deck?: Maybe<Deck>;
+  discardPile?: Maybe<Deck>;
+  hands?: Maybe<Array<Hand>>;
   id: Scalars['ID']['output'];
   players: Array<Player>;
   roomState?: Maybe<RoomState>;
@@ -133,6 +133,16 @@ export enum RoomState {
   IN_PROGRESS = 'IN_PROGRESS',
   WAITING = 'WAITING'
 }
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  roomUpdated: Room;
+};
+
+
+export type SubscriptionRoomUpdatedArgs = {
+  roomId: Scalars['UUID']['input'];
+};
 
 
 
@@ -219,6 +229,7 @@ export type ResolversTypes = {
   Room: ResolverTypeWrapper<Room>;
   RoomState: RoomState;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Subscription: ResolverTypeWrapper<{}>;
   UUID: ResolverTypeWrapper<Scalars['UUID']['output']>;
 };
 
@@ -235,6 +246,7 @@ export type ResolversParentTypes = {
   Query: {};
   Room: Room;
   String: Scalars['String']['output'];
+  Subscription: {};
   UUID: Scalars['UUID']['output'];
 };
 
@@ -284,13 +296,17 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 
 export type RoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['Room'] = ResolversParentTypes['Room']> = {
   currentHand?: Resolver<Maybe<ResolversTypes['Hand']>, ParentType, ContextType>;
-  deck?: Resolver<ResolversTypes['Deck'], ParentType, ContextType>;
-  discardPile?: Resolver<ResolversTypes['Deck'], ParentType, ContextType>;
-  hands?: Resolver<Array<ResolversTypes['Hand']>, ParentType, ContextType>;
+  deck?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
+  discardPile?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
+  hands?: Resolver<Maybe<Array<ResolversTypes['Hand']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   players?: Resolver<Array<ResolversTypes['Player']>, ParentType, ContextType>;
   roomState?: Resolver<Maybe<ResolversTypes['RoomState']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  roomUpdated?: SubscriptionResolver<ResolversTypes['Room'], "roomUpdated", ParentType, ContextType, RequireFields<SubscriptionRoomUpdatedArgs, 'roomId'>>;
 };
 
 export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UUID'], any> {
@@ -305,6 +321,7 @@ export type Resolvers<ContextType = any> = {
   Player?: PlayerResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Room?: RoomResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   UUID?: GraphQLScalarType;
 };
 

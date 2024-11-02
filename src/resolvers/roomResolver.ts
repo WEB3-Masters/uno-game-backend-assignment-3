@@ -2,27 +2,35 @@ import { RoomORM } from '../model/roomORM';
 import { PlayerORM } from '../model/playerORM';
 import { AppDataSource } from '../utils/db';
 import { CardORM } from 'model/cardORM';
+import { pubsub, EVENTS } from '../utils/pubsub';
 
 export const createRoom = async (host: PlayerORM) => {
   const roomRepository = AppDataSource.getRepository(RoomORM);
-  const newRoom = roomRepository.create({ players: [host], roomState: 'waiting' });
+  const newRoom = roomRepository.create(new RoomORM([host]));
   await roomRepository.save(newRoom);
   return newRoom;
 };
 
-export const joinGame = async ({ roomId, playerId } : { roomId: string; playerId: string }) => {
+export const joinRoom = async ({ roomId, playerId } : { roomId: string; playerId: string }) => {
   const roomRepository = AppDataSource.getRepository(RoomORM);
   const playerRepository = AppDataSource.getRepository(PlayerORM);
 
-  const game = await roomRepository.findOneBy({ id: roomId });
+  const room = await roomRepository.findOne({ where: { id: roomId }, relations: ['players'] });
   const player = await playerRepository.findOneBy({ id: playerId });
 
-  if (game && player && game.players.length < 4) {
-    game.players.push(player);
-    await roomRepository.save(game);
-    return game;
+  if (room && player && room.players.length < 4) {
+    room.players.push(player);
+    await roomRepository.save(room);
+    
+
+    pubsub.publish(`${EVENTS.ROOM_UPDATED}.${roomId}`, { 
+      roomUpdated: room,
+      roomId: roomId 
+    });
+    
+    return room;
   }
-  throw new Error('Unable to join game');
+  throw new Error('Unable to join room');
 };
 
 export const getRooms = async () => {
@@ -32,7 +40,10 @@ export const getRooms = async () => {
 
 export const getRoomById = async (roomId: string) => {
   const roomRepository = AppDataSource.getRepository(RoomORM);
-  return await roomRepository.findOneBy({ id: roomId });
+  return await roomRepository.findOne({
+    where: { id: roomId },
+    relations: ['players']
+  });
 }
 
 export const deleteRoom = async (id: string) => {
@@ -68,12 +79,25 @@ export const playHand = async ({ roomId, playerId, cardId } : { roomId: string; 
     throw new Error('Card is not part of the room\'s deck');
   }
 
-  // Update the game state (e.g., move the card to the discard pile)
-  room.discardPile.cards.push(card);
-  room.deck.cards = room.deck.cards.filter(c => c.id !== card.id);
+  if(room?.discardPile) {
+    // Update the room state (e.g., move the card to the discard pile)
+    room.discardPile.cards.push(card);
+  }
+  //TODO: what if there is no discart pile?
+
+  if(room?.deck) {
+    room.deck.cards = room.deck.cards.filter(c => c.id !== card.id);
+  }
+  //TODO: what if there is not deck?
 
   // Save the updated state back to the database
   await roomRepository.save(room);
+
+  // Publish event when a card is played
+  pubsub.publish(`${EVENTS.ROOM_UPDATED}.${roomId}`, { 
+    roomUpdated: room,
+    roomId: roomId 
+  });
 
   return true;
 }

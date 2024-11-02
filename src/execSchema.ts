@@ -7,8 +7,11 @@ import { AppDataSource } from "./utils/db";
 
 import { loginPlayer, registerPlayer } from './resolvers/authResolver';
 import { getPlayers, getPlayerById } from './resolvers/playerResolver';
-import { getRooms, getRoomById, deleteRoom, createRoom, joinGame, playHand } from 'resolvers/roomResolver';
+import { getRooms, getRoomById, deleteRoom, createRoom, joinRoom, playHand } from 'resolvers/roomResolver';
 import {CardORM} from "./model/cardORM";
+import { pubsub, EVENTS } from './utils/pubsub';
+import { RoomORM } from 'model/roomORM';
+import { PlayerORM } from 'model/playerORM';
 
 // Interface we pass as argument in our resolvers so they can access data from our database
 export interface MyContext {
@@ -27,22 +30,53 @@ const mapCardORMtoCard = (card: CardORM) : Card => {
     })
 }
 
+const mapRoom = (response: RoomORM): Room => {
+    return {
+        id: response.id,
+        players: response.players.map((player: PlayerORM) : Player => ({
+            id: player.id,
+            username: player.username,
+            password: player.password,
+            roomId: player.room?.id
+        })),
+        roomState: response.roomState as RoomState,
+        deck: response.deck ? {
+            id: response.deck.id,
+            cards: response.deck.cards.map(mapCardORMtoCard),
+        } : null,
+        discardPile: response.discardPile ? {
+            id: response.discardPile.id,
+            cards: response.discardPile.cards.map(mapCardORMtoCard),
+        } : null,
+        hands: []
+        /*hands: response.hands.map((hand : any) => ({
+            playerId: hand.playerId,
+            cards: hand.cards.map((card : any) : Card => ({
+                id: card.id,
+                type: card.type as CardType,
+                color: card.color as CardColor,
+                number: card.number
+            }))
+        }))*/
+    }
+}
+
+const mapPlayer = (response: PlayerORM): Player => {
+    return {
+        id: response.id,
+        username: response.username,
+        password: response.password,
+        roomId: response.room?.id
+    }
+}
 
 // Our resolvers take a generated type "Resolvers" that conforms exactly
 // to the shape of our schema the last time we ran "generateFromSchema"
 const resolvers: Resolvers = {
     Query: {
         players: async () => {
-            const response =  await getPlayers();
-
-            return response.map((player) : Player => {
-                return {
-                    id: player.id,
-                    username: player.username,
-                    password: player.password,
-                    roomId: player.room?.id
-                }
-            })
+            const response = await getPlayers();
+            return response.map(mapPlayer);
         },
         player: async (_, { id }) => {
             const response = await getPlayerById(id);
@@ -51,81 +85,20 @@ const resolvers: Resolvers = {
                 throw new Error("Player not found");
             }
 
-            return {
-                id: response.id,
-                username: response.username,
-                password: response.password,
-                roomId: response.room?.id
-            }
+            return mapPlayer(response);
         },
         rooms: async () => {
             const response = await getRooms();
-
-            return response.map((room) : Room => {
-                return {
-                    id: room.id,
-                    players: room.players.map((player) : Player => ({
-                        id: player.id,
-                        username: player.username,
-                        password: player.password,
-                        roomId: player.room?.id
-                    })),
-                    roomState: room.roomState as RoomState,
-                    deck: {
-                        id: room.deck.id,
-                        cards: room.deck.cards.map(mapCardORMtoCard)
-                    },
-                    discardPile: {
-                        id: room.discardPile.id,
-                        cards: room.discardPile.cards.map(mapCardORMtoCard)
-                    },
-                    hands: []
-                    /*hands: room.hands.map((hand : any) => ({
-                        playerId: hand.playerId,
-                        cards: hand.cards.map((card : any) : Card => ({
-                            id: card.id,
-                            type: card.type as CardType,
-                            color: card.color as CardColor,
-                            number: card.number
-                        }))
-                    }))*/
-                }
-            })
+            return response.map(mapRoom);
         },
         room: async (_, { id }) => {
             const response = await getRoomById(id);
             if(!response) {
                 throw new Error("Room not found");
             }
-            return {
-                id: response.id,
-                players: response.players.map((player) : Player => ({
-                    id: player.id,
-                    username: player.username,
-                    password: player.password,
-                    roomId: player.room?.id
-                })),
-                roomState: response.roomState as RoomState,
-                deck: {
-                    id: response.deck.id,
-                    cards: response.deck.cards.map(mapCardORMtoCard)
-                },
-                discardPile: {
-                    id: response.discardPile.id,
-                    cards: response.discardPile.cards.map(mapCardORMtoCard),
-                },
-                hands: [],
-                /*hands: response.hands.map((hand : any) => ({
-                    playerId: hand.playerId,
-                    cards: hand.cards.map((card : any) : Card => ({
-                        id: card.id,
-                        type: card.type as CardType,
-                        color: card.color as CardColor,
-                        number: card.number
-                    }))
-                }))
-                 */
-            }
+
+            console.log('Room', response);
+            return mapRoom(response);
         }
     },
     Mutation: {
@@ -142,72 +115,17 @@ const resolvers: Resolvers = {
             return await registerPlayer({ username, password });
         },
         createRoom: async (_, { hostId }, ) => {
-            const player = await getPlayerById(hostId.toString());
+            const player = await getPlayerById(hostId);
             if (!player) {
                 throw new Error("Player not found");
             }
             const response = await createRoom(player);
             
-            return {
-                id: response.id,
-                players: response.players.map((player) : Player => ({
-                    id: player.id,
-                    username: player.username,
-                    password: player.password,
-                    roomId: player.room?.id
-                })),
-                roomState: response.roomState as RoomState,
-                deck: {
-                    id: response.deck.id,
-                    cards: response.deck.cards.map(mapCardORMtoCard),
-                },
-                discardPile: {
-                    id: response.discardPile.id,
-                    cards: response.discardPile.cards.map(mapCardORMtoCard),
-                },
-                hands: []
-                /*hands: response.hands.map((hand : any) => ({
-                    playerId: hand.playerId,
-                    cards: hand.cards.map((card : any) : Card => ({
-                        id: card.id,
-                        type: card.type as CardType,
-                        color: card.color as CardColor,
-                        number: card.number
-                    }))
-                }))*/
-            }
+            return mapRoom(response);
         },
         joinRoom: async (_, { roomId, playerId }) => {
-            const response = await joinGame({ roomId, playerId });
-
-            return {
-                id: response.id,
-                players: response.players.map((player) : Player => ({
-                    id: player.id,
-                    username: player.username,
-                    password: player.password,
-                    roomId: player.room?.id
-                })),
-                roomState: response.roomState as RoomState,
-                deck: {
-                    id: response.deck.id,
-                    cards: response.deck.cards.map(mapCardORMtoCard),
-                },
-                discardPile: {
-                    id: response.discardPile.id,
-                    cards: response.discardPile.cards.map(mapCardORMtoCard),
-                },
-                hands: []
-                /*hands: response.hands.map((hand : any) => ({
-                    playerId: hand.playerId,
-                    cards: hand.cards.map((card : any) : Card => ({
-                        id: card.id,
-                        type: card.type as CardType,
-                        color: card.color as CardColor,
-                        number: card.number
-                    }))
-                }))*/
-            };
+            const response = await joinRoom({ roomId, playerId });
+            return mapRoom(response);
         },
         deleteRoom: async (_, { id }) => {
             return await deleteRoom(id);
@@ -221,57 +139,25 @@ const resolvers: Resolvers = {
             if (!response) {
                 throw new Error("Room not found");
             }
-            return {
-                id: response.id,
-                players: response.players.map((player) : Player => ({
-                    id: player.id,
-                    username: player.username,
-                    password: player.password,
-                    roomId: player.room?.id
-                })),
-                roomState: response.roomState as RoomState,
-                deck: {
-                    id: response.deck.id,
-                    cards: Array.from(response.deck.cards).map((card) : Card => {
-                        return {
-                            id: card.id,
-                            type: card.type as CardType,
-                            color: card.color as CardColor,
-                            number: card.number
-                        }
-                    })
-                },
-                discardPile: response.discardPile.map((card: any) : Card => ({  
-                    id: card.id,
-                    type: card.type as CardType,
-                    color: card.color as CardColor,
-                    number: card.number
-                })),
-                hands: response.hands.map((hand : any) => ({
-                    playerId: hand.playerId,
-                    cards: hand.cards.map((card : any) : Card => ({
-                        id: card.id,
-                        type: card.type as CardType,
-                        color: card.color as CardColor,
-                        number: card.number
-                    }))
-                }))
-            };
+            return mapRoom(response);
         }*/
+    },
+    Subscription: {
+        roomUpdated: {
+            subscribe: (_: any, { roomId }: { roomId: string }): AsyncIterator<any, any, undefined> => {
+                return pubsub.asyncIterator([`${EVENTS.ROOM_UPDATED}.${roomId}`]);
+            },
+            resolve: (payload: { roomUpdated: Room }): Room => {
+                return payload.roomUpdated;
+            }
+        }
     }
 }
 
 // A executable schema object that we pass directly to Apollo Server
 const schema = makeExecutableSchema({
-    typeDefs: [
-        // alongside our schema type definitions
-        typeDefs
-    ],
-    resolvers: {
-        // Pass in our custom scalar resolvers
-        // alongside our schema resolvers
-        ...resolvers,
-    },
+    typeDefs: [ typeDefs ],
+    resolvers: { ...resolvers },
 })
 
 // Export an executableSchema that gathers data from the database

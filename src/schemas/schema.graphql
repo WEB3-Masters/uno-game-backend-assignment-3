@@ -47,10 +47,10 @@ type Player {
 type Room {
     id: ID!
     players: [Player!]!
-    deck: Deck!
-    discardPile: Deck!
+    deck: Deck
+    discardPile: Deck
     roomState: RoomState
-    hands: [Hand!]!
+    hands: [Hand!]
     currentHand: Hand
 }
 
@@ -83,5 +83,9 @@ type Mutation {
 
     # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
     #playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Room!
+}
+
+type Subscription {
+  roomUpdated(roomId: UUID!): Room!
 }
 

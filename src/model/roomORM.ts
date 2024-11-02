@@ -13,17 +13,17 @@ export class RoomORM {
   players: PlayerORM[];
 
   @OneToOne(() => DeckORM, (deck) => deck.room)
-  deck: DeckORM;
+  deck?: DeckORM;
 
   @Column('text', { default: 'waiting' })
   roomState: 'waiting' | 'in-progress' | 'completed';
 
   @OneToOne(() => DeckORM, (deck) => deck.room)
-  discardPile: DeckORM;
+  discardPile?: DeckORM;
 
   //hands: any;
 
-  constructor(players: PlayerORM[], deck: DeckORM, discardPile: DeckORM) {
+  constructor(players: PlayerORM[], deck?: DeckORM, discardPile?: DeckORM) {
     this.id = uuid4();
     this.players = players;
     this.roomState = 'waiting';
