@@ -4,9 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "generateFromSchema": "graphql-codegen --config codegen.yml",
     "compile": "rimraf dist && graphql-codegen --config codegen.yml && tsc",
+    "generateFromSchema": "graphql-codegen --config codegen.yml",
     "start": "tsx src/server.ts"
   },
   "keywords": [],
