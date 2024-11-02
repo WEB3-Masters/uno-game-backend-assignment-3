@@ -1,73 +1,17 @@
 import { readFileSync } from 'fs';
-
 import { Resolvers, Player, Room, RoomState, CardColor, Card, CardType } from '__generated__/schema-types';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { addMocksToSchema } from '@graphql-tools/mock';
 import { AppDataSource } from "./utils/db";
-
 import { loginPlayer, registerPlayer } from './resolvers/authResolver';
 import { getPlayers, getPlayerById } from './resolvers/playerResolver';
 import { getRooms, getRoomById, deleteRoom, createRoom, joinRoom, playHand } from 'resolvers/roomResolver';
-import {CardORM} from "./model/cardORM";
 import { pubsub, EVENTS } from './utils/pubsub';
-import { RoomORM } from 'model/roomORM';
-import { PlayerORM } from 'model/playerORM';
+import { mapPlayer, mapRoom } from 'utils/mapper';
 
 // Interface we pass as argument in our resolvers so they can access data from our database
 export interface MyContext {
     dataSource: typeof AppDataSource
-}
-
-// Read definitions of data types in our GraphQL schema
-const typeDefs = readFileSync('./src/schemas/schema.graphql', { encoding: 'utf-8' });
-
-const mapCardORMtoCard = (card: CardORM) : Card => {
-    return ({
-        id: card.id,
-        type: card.type as CardType,
-        color: card.color as CardColor,
-        number: card.number
-    })
-}
-
-const mapRoom = (response: RoomORM): Room => {
-    return {
-        id: response.id,
-        players: response.players.map((player: PlayerORM) : Player => ({
-            id: player.id,
-            username: player.username,
-            password: player.password,
-            roomId: player.room?.id
-        })),
-        roomState: response.roomState as RoomState,
-        deck: response.deck ? {
-            id: response.deck.id,
-            cards: response.deck.cards.map(mapCardORMtoCard),
-        } : null,
-        discardPile: response.discardPile ? {
-            id: response.discardPile.id,
-            cards: response.discardPile.cards.map(mapCardORMtoCard),
-        } : null,
-        hands: []
-        /*hands: response.hands.map((hand : any) => ({
-            playerId: hand.playerId,
-            cards: hand.cards.map((card : any) : Card => ({
-                id: card.id,
-                type: card.type as CardType,
-                color: card.color as CardColor,
-                number: card.number
-            }))
-        }))*/
-    }
-}
-
-const mapPlayer = (response: PlayerORM): Player => {
-    return {
-        id: response.id,
-        username: response.username,
-        password: response.password,
-        roomId: response.room?.id
-    }
 }
 
 // Our resolvers take a generated type "Resolvers" that conforms exactly
@@ -154,16 +98,16 @@ const resolvers: Resolvers = {
     }
 }
 
+// Read definitions of data types in our GraphQL schema
+const typeDefs = readFileSync('./src/schemas/schema.graphql', { encoding: 'utf-8' });
+
 // A executable schema object that we pass directly to Apollo Server
-const schema = makeExecutableSchema({
+export const execSchema = makeExecutableSchema({
     typeDefs: [ typeDefs ],
     resolvers: { ...resolvers },
 })
 
-// Export an executableSchema that gathers data from the database
-export const execSchema = schema;
-
 // Export an executableSchema populated with mocked/dummy data
 export const mockedExecSchema = addMocksToSchema({
-    schema,
+    schema: execSchema,
 })
