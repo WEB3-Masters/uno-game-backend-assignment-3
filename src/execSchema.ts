@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { Resolvers, Player, Room, RoomState, CardColor, Card, CardType } from '__generated__/schema-types';
+import { Resolvers, Room } from '__generated__/schema-types';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { addMocksToSchema } from '@graphql-tools/mock';
 import { AppDataSource } from "./utils/db";
@@ -58,8 +58,6 @@ const resolvers: Resolvers = {
         registerPlayer: async(_, { username, password }) => {
             const response = await registerPlayer({ username, password });
             return mapPlayer(response);
-            const response = await registerPlayer({ username, password });
-            return mapPlayer(response);
         },
         createRoom: async (_, { hostId }, ) => {
             const player = await getPlayerById(hostId);
@@ -77,8 +75,8 @@ const resolvers: Resolvers = {
         deleteRoom: async (_, { id }) => {
             return await deleteRoom(id);
         },
-        updateRoom: async (_, { updatedRoom }) => {
-            const response = await updateRoom(updatedRoom);
+        updateRoom: async (_, { room }) => {
+            const response = await updateRoom(room);
             return mapRoom(response);
         },
     },

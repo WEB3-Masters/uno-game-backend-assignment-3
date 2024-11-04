@@ -68,6 +68,9 @@ input DeckInput {
 
 input CardInput {
     id: UUID!
+    type: CardType!
+    color: CardColor
+    number: Int
 }
 
 input PlayerInput {

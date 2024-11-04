@@ -34,7 +34,10 @@ export enum CardColor {
 }
 
 export type CardInput = {
+  color?: InputMaybe<CardColor>;
   id: Scalars['UUID']['input'];
+  number?: InputMaybe<Scalars['Int']['input']>;
+  type: CardType;
 };
 
 export enum CardType {
@@ -97,7 +100,7 @@ export type MutationRegisterPlayerArgs = {
 
 
 export type MutationUpdateRoomArgs = {
-  updateRoom: RoomInput;
+  room: RoomInput;
 };
 
 export type Player = {
@@ -296,7 +299,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'playerId' | 'roomId'>>;
   loginPlayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
   registerPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationRegisterPlayerArgs, 'password' | 'username'>>;
-  updateRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationUpdateRoomArgs, 'updateRoom'>>;
+  updateRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationUpdateRoomArgs, 'room'>>;
 };
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = {
