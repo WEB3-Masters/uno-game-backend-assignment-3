@@ -15,12 +15,6 @@ export const mapCard = (card: CardORM) : Card => {
 export const mapRoom = (response: RoomORM): Room => {
     return {
         id: response.id,
-        players: response.players.map((player: PlayerORM) : Player => ({
-            id: player.id,
-            username: player.username,
-            password: player.password,
-            roomId: player.room?.id
-        })),
         roomState: response.roomState as RoomState,
         deck: response.deck ? {
             id: response.deck.id,
@@ -30,16 +24,7 @@ export const mapRoom = (response: RoomORM): Room => {
             id: response.discardPile.id,
             cards: response.discardPile.cards.map(mapCard),
         } : null,
-        hands: []
-        /*hands: response.hands.map((hand : any) => ({
-            playerId: hand.playerId,
-            cards: hand.cards.map((card : any) : Card => ({
-                id: card.id,
-                type: card.type as CardType,
-                color: card.color as CardColor,
-                number: card.number
-            }))
-        }))*/
+        players: response.players.map(mapPlayer),
     }
 }
 
@@ -48,6 +33,6 @@ export const mapPlayer = (response: PlayerORM): Player => {
         id: response.id,
         username: response.username,
         password: response.password,
-        roomId: response.room?.id
+        cards: response.cards?.map(mapCard) || []
     }
 }

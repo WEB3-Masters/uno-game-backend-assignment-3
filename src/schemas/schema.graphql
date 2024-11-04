@@ -40,7 +40,7 @@ type Player {
     id: UUID!
     username: String!
     password: String!
-    roomId: UUID
+    cards: [Card!]
 }
 
 type Room {
@@ -48,14 +48,8 @@ type Room {
     deck: Deck
     discardPile: Deck
     roomState: RoomState
-    playerHands: [PlayersHand!]
-    currentPlayerHand: PlayersHand
-}
-
-type PlayersHand {
-    playerId: UUID!
-    playerName: String!
-    cards: [Card!]
+    players: [Player!]
+    currentPlayer: Player
 }
 
 # Queries for fetching player(s)
