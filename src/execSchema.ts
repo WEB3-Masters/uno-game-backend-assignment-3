@@ -5,7 +5,7 @@ import { addMocksToSchema } from '@graphql-tools/mock';
 import { AppDataSource } from "./utils/db";
 import { loginPlayer, registerPlayer } from './resolvers/authResolver';
 import { getPlayers, getPlayerById } from './resolvers/playerResolver';
-import { getRooms, getRoomById, deleteRoom, createRoom, joinRoom, playHand } from 'resolvers/roomResolver';
+import { getRooms, getRoomById, deleteRoom, createRoom, joinRoom, updateRoom } from 'resolvers/roomResolver';
 import { pubsub, EVENTS } from './utils/pubsub';
 import { mapPlayer, mapRoom } from 'utils/mapper';
 
@@ -58,6 +58,8 @@ const resolvers: Resolvers = {
         registerPlayer: async(_, { username, password }) => {
             const response = await registerPlayer({ username, password });
             return mapPlayer(response);
+            const response = await registerPlayer({ username, password });
+            return mapPlayer(response);
         },
         createRoom: async (_, { hostId }, ) => {
             const player = await getPlayerById(hostId);
@@ -74,6 +76,10 @@ const resolvers: Resolvers = {
         },
         deleteRoom: async (_, { id }) => {
             return await deleteRoom(id);
+        },
+        updateRoom: async (_, { updatedRoom }) => {
+            const response = await updateRoom(updatedRoom);
+            return mapRoom(response);
         },
     },
     Subscription: {

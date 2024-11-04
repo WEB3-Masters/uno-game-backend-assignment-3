@@ -55,6 +55,15 @@ export const deleteRoom = async (id: string) => {
   return true;
 }
 
+export const updateRoom = async (updatedRoom: Partial<RoomORM>) => {
+  const roomRepository = AppDataSource.getRepository(RoomORM);
+  const currentRoom = await roomRepository.findOneBy({ id: updatedRoom.id });
+  if (!currentRoom) throw new Error("Room not found");
+  
+  updateRoomProperties(currentRoom, updatedRoom);
+  return await roomRepository.save(currentRoom);
+};
+
 export const playHand = async ({ roomId, playerId, cardId } : { roomId: string; playerId: string; cardId: string }) => {
   const roomRepository = AppDataSource.getRepository(RoomORM);
   const playerRepository = AppDataSource.getRepository(PlayerORM);
@@ -106,3 +115,18 @@ export const playHand = async ({ roomId, playerId, cardId } : { roomId: string; 
 
   return true;
 }
+
+const updateRoomProperties = (currentRoom: RoomORM, updatedRoom: Partial<RoomORM>) => {
+  if (updatedRoom.deck !== null && updatedRoom.deck !== undefined) {
+    currentRoom.deck = updatedRoom.deck;
+  }
+  if (updatedRoom.discardPile !== null && updatedRoom.discardPile !== undefined) {
+    currentRoom.discardPile = updatedRoom.discardPile;
+  }
+  if (updatedRoom.players !== null && updatedRoom.players !== undefined) {
+    currentRoom.players = updatedRoom.players;
+  }
+  if (updatedRoom.roomState !== null && updatedRoom.roomState !== undefined) {
+    currentRoom.roomState = updatedRoom.roomState;
+  }
+};
