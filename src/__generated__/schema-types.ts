@@ -33,6 +33,10 @@ export enum CardColor {
   YELLOW = 'YELLOW'
 }
 
+export type CardInput = {
+  id: Scalars['UUID']['input'];
+};
+
 export enum CardType {
   DRAW = 'DRAW',
   NUMBERED = 'NUMBERED',
@@ -46,6 +50,11 @@ export type Deck = {
   __typename?: 'Deck';
   cards: Array<Card>;
   id: Scalars['UUID']['output'];
+};
+
+export type DeckInput = {
+  cards: Array<CardInput>;
+  id: Scalars['UUID']['input'];
 };
 
 export type Mutation = {
@@ -88,7 +97,7 @@ export type MutationRegisterPlayerArgs = {
 
 
 export type MutationUpdateRoomArgs = {
-  updateRoom: Room;
+  updateRoom: RoomInput;
 };
 
 export type Player = {
@@ -97,6 +106,11 @@ export type Player = {
   id: Scalars['UUID']['output'];
   password: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type PlayerInput = {
+  cards?: InputMaybe<Array<CardInput>>;
+  id: Scalars['UUID']['input'];
 };
 
 export type Query = {
@@ -125,6 +139,15 @@ export type Room = {
   id: Scalars['UUID']['output'];
   players?: Maybe<Array<Player>>;
   roomState?: Maybe<RoomState>;
+};
+
+export type RoomInput = {
+  currentPlayer?: InputMaybe<PlayerInput>;
+  deck?: InputMaybe<DeckInput>;
+  discardPile?: InputMaybe<DeckInput>;
+  id: Scalars['UUID']['input'];
+  players?: InputMaybe<Array<PlayerInput>>;
+  roomState?: InputMaybe<RoomState>;
 };
 
 export enum RoomState {
@@ -216,13 +239,17 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Card: ResolverTypeWrapper<Card>;
   CardColor: CardColor;
+  CardInput: CardInput;
   CardType: CardType;
   Deck: ResolverTypeWrapper<Deck>;
+  DeckInput: DeckInput;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Player: ResolverTypeWrapper<Player>;
+  PlayerInput: PlayerInput;
   Query: ResolverTypeWrapper<{}>;
   Room: ResolverTypeWrapper<Room>;
+  RoomInput: RoomInput;
   RoomState: RoomState;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -233,12 +260,16 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Card: Card;
+  CardInput: CardInput;
   Deck: Deck;
+  DeckInput: DeckInput;
   Int: Scalars['Int']['output'];
   Mutation: {};
   Player: Player;
+  PlayerInput: PlayerInput;
   Query: {};
   Room: Room;
+  RoomInput: RoomInput;
   String: Scalars['String']['output'];
   Subscription: {};
   UUID: Scalars['UUID']['output'];

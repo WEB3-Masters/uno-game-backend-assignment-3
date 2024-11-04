@@ -24,6 +24,5 @@ export class PlayerORM {
     this.id = uuid4();
     this.username = username;
     this.password = password;
-    this.cards = [];
   }
 }

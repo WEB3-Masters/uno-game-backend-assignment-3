@@ -19,11 +19,11 @@ export const mapRoom = (response: RoomORM): Room => {
         deck: response.deck ? {
             id: response.deck.id,
             cards: response.deck.cards.map(mapCard),
-        } : null,
+        } : undefined,
         discardPile: response.discardPile ? {
             id: response.discardPile.id,
             cards: response.discardPile.cards.map(mapCard),
-        } : null,
+        } : undefined,
         players: response.players.map(mapPlayer),
     }
 }

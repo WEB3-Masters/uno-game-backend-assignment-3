@@ -56,7 +56,8 @@ const resolvers: Resolvers = {
             return response.id;
         },
         registerPlayer: async(_, { username, password }) => {
-            return await registerPlayer({ username, password });
+            const response = await registerPlayer({ username, password });
+            return mapPlayer(response);
         },
         createRoom: async (_, { hostId }, ) => {
             const player = await getPlayerById(hostId);
@@ -74,17 +75,6 @@ const resolvers: Resolvers = {
         deleteRoom: async (_, { id }) => {
             return await deleteRoom(id);
         },
-        /*playHand: async (parent, { roomId, playerId, cardId }, contextValue: MyContext, info) => {
-            const success = await playHand({ roomId, playerId, cardId });
-            if (!success) {
-                throw new Error("Failed to play hand");
-            }
-            const response = await getRoomById(roomId);
-            if (!response) {
-                throw new Error("Room not found");
-            }
-            return mapRoom(response);
-        }*/
     },
     Subscription: {
         roomUpdated: {

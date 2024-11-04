@@ -5,7 +5,7 @@ import { AppDataSource } from '../utils/db';
 export const registerPlayer = async ({ username, password }: { username: string; password: string }) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const playerRepository = AppDataSource.getRepository(PlayerORM);
-  const newPlayer = playerRepository.create({ username, password: hashedPassword });
+  const newPlayer = playerRepository.create(new PlayerORM(username, hashedPassword));
   await playerRepository.save(newPlayer);
   return newPlayer;
 };

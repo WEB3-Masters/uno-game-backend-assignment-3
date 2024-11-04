@@ -52,6 +52,29 @@ type Room {
     currentPlayer: Player
 }
 
+input RoomInput {
+    id: UUID!
+    deck: DeckInput
+    discardPile: DeckInput
+    roomState: RoomState
+    players: [PlayerInput!]
+    currentPlayer: PlayerInput
+}
+
+input DeckInput {
+    id: UUID!
+    cards: [CardInput!]!
+}
+
+input CardInput {
+    id: UUID!
+}
+
+input PlayerInput {
+    id: UUID!
+    cards: [CardInput!]
+}
+
 # Queries for fetching player(s)
 type Query {
     player(id: UUID!): Player
@@ -75,7 +98,7 @@ type Mutation {
     joinRoom(roomId: UUID!, playerId: UUID!): Room!
 
     # Updates room state and handles game actions
-    updateRoom(updateRoom: Room!): Room!
+    updateRoom(room: RoomInput!): Room!
 }
 
 type Subscription {
