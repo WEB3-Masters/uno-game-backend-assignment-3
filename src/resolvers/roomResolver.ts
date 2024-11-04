@@ -79,16 +79,21 @@ export const playHand = async ({ roomId, playerId, cardId } : { roomId: string; 
     throw new Error('Card is not part of the room\'s deck');
   }
 
-  if(room?.discardPile) {
-    // Update the room state (e.g., move the card to the discard pile)
-    room.discardPile.cards.push(card);
+  // Ensure the discard pile exists
+  if (!room.discardPile) {
+    throw new Error('Room does not have a discard pile');
   }
-  //TODO: what if there is no discart pile?
 
-  if(room?.deck) {
-    room.deck.cards = room.deck.cards.filter(c => c.id !== card.id);
+  // Update the room state (e.g., move the card to the discard pile)
+  room.discardPile.cards.push(card);
+
+  // Ensure the deck exists
+  if (!room.deck) {
+    throw new Error('Room does not have a deck');
   }
-  //TODO: what if there is not deck?
+
+  // Remove the card from the deck
+  room.deck.cards = room.deck.cards.filter(c => c.id !== card.id);
 
   // Save the updated state back to the database
   await roomRepository.save(room);

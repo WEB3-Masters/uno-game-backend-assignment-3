@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { DeckORM } from './deckORM';
-import {v4 as uuid4} from "uuid";
+import { v4 as uuid4 } from "uuid";
 
 export type CardType = "SKIP" | "NUMBERED" | "REVERSE" | "DRAW" | "WILD" | "WILD DRAW";
 export type CardColor = "BLUE" | "GREEN" | "RED" | "YELLOW";

@@ -88,8 +88,8 @@ const resolvers: Resolvers = {
     },
     Subscription: {
         roomUpdated: {
-            subscribe: (_: any, { roomId }: { roomId: string }): AsyncIterator<any, any, undefined> => {
-                return pubsub.asyncIterator([`${EVENTS.ROOM_UPDATED}.${roomId}`]);
+            subscribe: async (_: any, { roomId }: { roomId: string }): Promise<AsyncIterable<any>> => {
+                return { [Symbol.asyncIterator]: () => pubsub.asyncIterator([`${EVENTS.ROOM_UPDATED}.${roomId}`]) };
             },
             resolve: (payload: { roomUpdated: Room }): Room => {
                 return payload.roomUpdated;
