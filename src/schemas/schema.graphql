@@ -21,7 +21,6 @@ enum CardColor {
 enum RoomState {
     WAITING
     IN_PROGRESS
-    COMPLETED
 }
 
 type Deck {
@@ -45,18 +44,18 @@ type Player {
 }
 
 type Room {
-    id: ID!
-    players: [Player!]!
+    id: UUID!
     deck: Deck
     discardPile: Deck
     roomState: RoomState
-    hands: [Hand!]
-    currentHand: Hand
+    playerHands: [PlayersHand!]
+    currentPlayerHand: PlayersHand
 }
 
-type Hand {
+type PlayersHand {
     playerId: UUID!
-    cards: [Card!]!
+    playerName: String!
+    cards: [Card!]
 }
 
 # Queries for fetching player(s)
@@ -81,11 +80,10 @@ type Mutation {
     # Allows a player to join a game
     joinRoom(roomId: UUID!, playerId: UUID!): Room!
 
-    # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
-    #playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Room!
+    # Updates room state and handles game actions
+    updateRoom(updateRoom: Room!): Room!
 }
 
 type Subscription {
   roomUpdated(roomId: UUID!): Room!
 }
-

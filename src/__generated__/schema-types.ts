@@ -48,12 +48,6 @@ export type Deck = {
   id: Scalars['UUID']['output'];
 };
 
-export type Hand = {
-  __typename?: 'Hand';
-  cards: Array<Card>;
-  playerId: Scalars['UUID']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
@@ -61,6 +55,7 @@ export type Mutation = {
   joinRoom: Room;
   loginPlayer?: Maybe<Scalars['String']['output']>;
   registerPlayer: Player;
+  updateRoom: Room;
 };
 
 
@@ -91,12 +86,24 @@ export type MutationRegisterPlayerArgs = {
   username: Scalars['String']['input'];
 };
 
+
+export type MutationUpdateRoomArgs = {
+  updateRoom: Room;
+};
+
 export type Player = {
   __typename?: 'Player';
   id: Scalars['UUID']['output'];
   password: Scalars['String']['output'];
   roomId?: Maybe<Scalars['UUID']['output']>;
   username: Scalars['String']['output'];
+};
+
+export type PlayersHand = {
+  __typename?: 'PlayersHand';
+  cards?: Maybe<Array<Card>>;
+  playerId: Scalars['UUID']['output'];
+  playerName: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -119,17 +126,15 @@ export type QueryRoomArgs = {
 
 export type Room = {
   __typename?: 'Room';
-  currentHand?: Maybe<Hand>;
+  currentPlayerHand?: Maybe<PlayersHand>;
   deck?: Maybe<Deck>;
   discardPile?: Maybe<Deck>;
-  hands?: Maybe<Array<Hand>>;
-  id: Scalars['ID']['output'];
-  players: Array<Player>;
+  id: Scalars['UUID']['output'];
+  playerHands?: Maybe<Array<PlayersHand>>;
   roomState?: Maybe<RoomState>;
 };
 
 export enum RoomState {
-  COMPLETED = 'COMPLETED',
   IN_PROGRESS = 'IN_PROGRESS',
   WAITING = 'WAITING'
 }
@@ -220,11 +225,10 @@ export type ResolversTypes = {
   CardColor: CardColor;
   CardType: CardType;
   Deck: ResolverTypeWrapper<Deck>;
-  Hand: ResolverTypeWrapper<Hand>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Player: ResolverTypeWrapper<Player>;
+  PlayersHand: ResolverTypeWrapper<PlayersHand>;
   Query: ResolverTypeWrapper<{}>;
   Room: ResolverTypeWrapper<Room>;
   RoomState: RoomState;
@@ -238,11 +242,10 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Card: Card;
   Deck: Deck;
-  Hand: Hand;
-  ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Mutation: {};
   Player: Player;
+  PlayersHand: PlayersHand;
   Query: {};
   Room: Room;
   String: Scalars['String']['output'];
@@ -265,18 +268,13 @@ export type DeckResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type HandResolvers<ContextType = any, ParentType extends ResolversParentTypes['Hand'] = ResolversParentTypes['Hand']> = {
-  cards?: Resolver<Array<ResolversTypes['Card']>, ParentType, ContextType>;
-  playerId?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationCreateRoomArgs, 'hostId'>>;
   deleteRoom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteRoomArgs, 'id'>>;
   joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'playerId' | 'roomId'>>;
   loginPlayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
   registerPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationRegisterPlayerArgs, 'password' | 'username'>>;
+  updateRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationUpdateRoomArgs, 'updateRoom'>>;
 };
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = {
@@ -284,6 +282,13 @@ export type PlayerResolvers<ContextType = any, ParentType extends ResolversParen
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roomId?: Resolver<Maybe<ResolversTypes['UUID']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PlayersHandResolvers<ContextType = any, ParentType extends ResolversParentTypes['PlayersHand'] = ResolversParentTypes['PlayersHand']> = {
+  cards?: Resolver<Maybe<Array<ResolversTypes['Card']>>, ParentType, ContextType>;
+  playerId?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  playerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -295,12 +300,11 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type RoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['Room'] = ResolversParentTypes['Room']> = {
-  currentHand?: Resolver<Maybe<ResolversTypes['Hand']>, ParentType, ContextType>;
+  currentPlayerHand?: Resolver<Maybe<ResolversTypes['PlayersHand']>, ParentType, ContextType>;
   deck?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
   discardPile?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
-  hands?: Resolver<Maybe<Array<ResolversTypes['Hand']>>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  players?: Resolver<Array<ResolversTypes['Player']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  playerHands?: Resolver<Maybe<Array<ResolversTypes['PlayersHand']>>, ParentType, ContextType>;
   roomState?: Resolver<Maybe<ResolversTypes['RoomState']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -316,9 +320,9 @@ export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type Resolvers<ContextType = any> = {
   Card?: CardResolvers<ContextType>;
   Deck?: DeckResolvers<ContextType>;
-  Hand?: HandResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Player?: PlayerResolvers<ContextType>;
+  PlayersHand?: PlayersHandResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Room?: RoomResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
