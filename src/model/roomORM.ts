@@ -21,6 +21,9 @@ export class RoomORM {
   @OneToOne(() => DeckORM, (deck) => deck.room)
   discardPile?: DeckORM;
 
+  @OneToOne(() => PlayerORM, (player) => player.room)
+  currentPlayer?: PlayerORM;
+
   constructor(players: PlayerORM[], deck?: DeckORM, discardPile?: DeckORM) {
     this.id = uuid4();
     this.players = players;

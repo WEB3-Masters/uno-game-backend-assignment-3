@@ -19,13 +19,14 @@ export const mapRoom = (response: RoomORM): Room => {
         roomState: response.roomState as RoomState,
         deck: response.deck ? {
             id: response.deck.id,
-            cards: response.deck.cards.map(mapCard),
+            cards: response.deck.cards?.map(mapCard) || [],
         } : undefined,
         discardPile: response.discardPile ? {
             id: response.discardPile.id,
-            cards: response.discardPile.cards.map(mapCard),
+            cards: response.discardPile.cards?.map(mapCard) || [],
         } : undefined,
-        players: response.players.map(mapPlayer),
+        players: response.players?.map(mapPlayer) || [],
+        currentPlayer: response.currentPlayer ? mapPlayer(response.currentPlayer) : undefined
     }
 }
 
@@ -49,7 +50,7 @@ export const mapCardInputToCardORM = (card: CardInput, currentRoom: RoomORM) : C
 }
 
 export const mapPlayerInputToPlayerORM = (player: PlayerInput, currentRoom: RoomORM) : PlayerORM => {
-    const existingPlayer = currentRoom.players.find(p => p.id === player.id);
+    const existingPlayer = currentRoom.players?.find(p => p.id === player.id);
     if (!existingPlayer) {
         throw new Error(`Player with id ${player.id} not found in the current room.`);
     }
