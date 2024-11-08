@@ -108,6 +108,7 @@ export type Player = {
   cards?: Maybe<Array<Card>>;
   id: Scalars['UUID']['output'];
   password: Scalars['String']['output'];
+  room?: Maybe<Room>;
   username: Scalars['String']['output'];
 };
 
@@ -160,7 +161,7 @@ export enum RoomState {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  roomUpdated: Room;
+  roomUpdated?: Maybe<Room>;
 };
 
 
@@ -306,6 +307,7 @@ export type PlayerResolvers<ContextType = any, ParentType extends ResolversParen
   cards?: Resolver<Maybe<Array<ResolversTypes['Card']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -328,7 +330,7 @@ export type RoomResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
-  roomUpdated?: SubscriptionResolver<ResolversTypes['Room'], "roomUpdated", ParentType, ContextType, RequireFields<SubscriptionRoomUpdatedArgs, 'roomId'>>;
+  roomUpdated?: SubscriptionResolver<Maybe<ResolversTypes['Room']>, "roomUpdated", ParentType, ContextType, RequireFields<SubscriptionRoomUpdatedArgs, 'roomId'>>;
 };
 
 export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UUID'], any> {

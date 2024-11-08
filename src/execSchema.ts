@@ -41,7 +41,6 @@ const resolvers: Resolvers = {
                 throw new Error("Room not found");
             }
 
-            console.log('Room', response);
             return mapRoom(response);
         }
     },

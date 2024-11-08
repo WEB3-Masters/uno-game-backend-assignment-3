@@ -41,6 +41,7 @@ type Player {
     username: String!
     password: String!
     cards: [Card!]
+    room: Room
 }
 
 type Room {
@@ -105,5 +106,5 @@ type Mutation {
 }
 
 type Subscription {
-  roomUpdated(roomId: UUID!): Room!
+  roomUpdated(roomId: UUID!): Room
 }

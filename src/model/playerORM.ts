@@ -20,9 +20,6 @@ export class PlayerORM {
   @OneToMany(() => CardORM, (card) => card.player, { nullable: true })
   cards?: CardORM[];
 
-  @ManyToOne(() => RoomORM, (room) => room.currentPlayer, { nullable: true })
-  currentRoom?: RoomORM;
-
   constructor(username: string, password: string) {
     this.id = uuid4();
     this.username = username;

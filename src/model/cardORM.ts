@@ -14,8 +14,8 @@ export class CardORM {
     @Column('text')
     type: "SKIP" | "NUMBERED" | "REVERSE" | "DRAW" |  "WILD" | "WILD DRAW";
 
-    @Column('text')
-    color: "BLUE" | "GREEN" | "RED" | "YELLOW";
+    @Column('text', { nullable: true })
+    color?: "BLUE" | "GREEN" | "RED" | "YELLOW";
 
     @Column({ type: 'int', nullable: true })
     number?: number;
