@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { GraphQLResolveInfo } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,14 +14,13 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  UUID: { input: string; output: string; }
 };
 
 export type Card = {
   __typename?: 'Card';
   color?: Maybe<CardColor>;
   deck?: Maybe<Deck>;
-  id: Scalars['UUID']['output'];
+  id: Scalars['ID']['output'];
   number?: Maybe<Scalars['Int']['output']>;
   type: CardType;
 };
@@ -35,7 +34,7 @@ export enum CardColor {
 
 export type CardInput = {
   color?: InputMaybe<CardColor>;
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
   number?: InputMaybe<Scalars['Int']['input']>;
   type: CardType;
 };
@@ -52,38 +51,64 @@ export enum CardType {
 export type Deck = {
   __typename?: 'Deck';
   cards: Array<Card>;
-  id: Scalars['UUID']['output'];
+  id: Scalars['ID']['output'];
 };
 
 export type DeckInput = {
   cards: Array<CardInput>;
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
+};
+
+export type InitialCardInput = {
+  color?: InputMaybe<CardColor>;
+  number?: InputMaybe<Scalars['Int']['input']>;
+  type: CardType;
+};
+
+export type InitialGameInput = {
+  currentPlayerId?: InputMaybe<Scalars['ID']['input']>;
+  deckCards: Array<InitialCardInput>;
+  pileCards: Array<InitialCardInput>;
+  playerCards: Array<InitialPlayerCardsInput>;
+  roomId: Scalars['ID']['input'];
+  roomState: RoomState;
+};
+
+export type InitialPlayerCardsInput = {
+  cards: Array<InitialCardInput>;
+  playerId: Scalars['ID']['input'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
   deleteRoom?: Maybe<Scalars['Boolean']['output']>;
+  initializeGame: Room;
   joinRoom: Room;
-  loginPlayer?: Maybe<Scalars['String']['output']>;
+  loginPlayer: Player;
   registerPlayer: Player;
   updateRoom: Room;
 };
 
 
 export type MutationCreateRoomArgs = {
-  hostId: Scalars['UUID']['input'];
+  hostId: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteRoomArgs = {
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationInitializeGameArgs = {
+  gameInput: InitialGameInput;
 };
 
 
 export type MutationJoinRoomArgs = {
-  playerId: Scalars['UUID']['input'];
-  roomId: Scalars['UUID']['input'];
+  playerId: Scalars['ID']['input'];
+  roomId: Scalars['ID']['input'];
 };
 
 
@@ -106,7 +131,7 @@ export type MutationUpdateRoomArgs = {
 export type Player = {
   __typename?: 'Player';
   cards?: Maybe<Array<Card>>;
-  id: Scalars['UUID']['output'];
+  id: Scalars['ID']['output'];
   password: Scalars['String']['output'];
   room?: Maybe<Room>;
   username: Scalars['String']['output'];
@@ -114,7 +139,7 @@ export type Player = {
 
 export type PlayerInput = {
   cards?: InputMaybe<Array<CardInput>>;
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
 };
 
 export type Query = {
@@ -127,12 +152,12 @@ export type Query = {
 
 
 export type QueryPlayerArgs = {
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryRoomArgs = {
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
 };
 
 export type Room = {
@@ -140,7 +165,7 @@ export type Room = {
   currentPlayer?: Maybe<Player>;
   deck?: Maybe<Deck>;
   discardPile?: Maybe<Deck>;
-  id: Scalars['UUID']['output'];
+  id: Scalars['ID']['output'];
   players?: Maybe<Array<Player>>;
   roomState?: Maybe<RoomState>;
 };
@@ -149,7 +174,7 @@ export type RoomInput = {
   currentPlayer?: InputMaybe<PlayerInput>;
   deck?: InputMaybe<DeckInput>;
   discardPile?: InputMaybe<DeckInput>;
-  id: Scalars['UUID']['input'];
+  id: Scalars['ID']['input'];
   players?: InputMaybe<Array<PlayerInput>>;
   roomState?: InputMaybe<RoomState>;
 };
@@ -166,7 +191,7 @@ export type Subscription = {
 
 
 export type SubscriptionRoomUpdatedArgs = {
-  roomId: Scalars['UUID']['input'];
+  roomId: Scalars['ID']['input'];
 };
 
 
@@ -247,6 +272,10 @@ export type ResolversTypes = {
   CardType: CardType;
   Deck: ResolverTypeWrapper<Deck>;
   DeckInput: DeckInput;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  InitialCardInput: InitialCardInput;
+  InitialGameInput: InitialGameInput;
+  InitialPlayerCardsInput: InitialPlayerCardsInput;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Player: ResolverTypeWrapper<Player>;
@@ -257,7 +286,6 @@ export type ResolversTypes = {
   RoomState: RoomState;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
-  UUID: ResolverTypeWrapper<Scalars['UUID']['output']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -267,6 +295,10 @@ export type ResolversParentTypes = {
   CardInput: CardInput;
   Deck: Deck;
   DeckInput: DeckInput;
+  ID: Scalars['ID']['output'];
+  InitialCardInput: InitialCardInput;
+  InitialGameInput: InitialGameInput;
+  InitialPlayerCardsInput: InitialPlayerCardsInput;
   Int: Scalars['Int']['output'];
   Mutation: {};
   Player: Player;
@@ -276,13 +308,12 @@ export type ResolversParentTypes = {
   RoomInput: RoomInput;
   String: Scalars['String']['output'];
   Subscription: {};
-  UUID: Scalars['UUID']['output'];
 };
 
 export type CardResolvers<ContextType = any, ParentType extends ResolversParentTypes['Card'] = ResolversParentTypes['Card']> = {
   color?: Resolver<Maybe<ResolversTypes['CardColor']>, ParentType, ContextType>;
   deck?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   number?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['CardType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -290,22 +321,23 @@ export type CardResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type DeckResolvers<ContextType = any, ParentType extends ResolversParentTypes['Deck'] = ResolversParentTypes['Deck']> = {
   cards?: Resolver<Array<ResolversTypes['Card']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationCreateRoomArgs, 'hostId'>>;
   deleteRoom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteRoomArgs, 'id'>>;
+  initializeGame?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationInitializeGameArgs, 'gameInput'>>;
   joinRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'playerId' | 'roomId'>>;
-  loginPlayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
+  loginPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationLoginPlayerArgs, 'password' | 'username'>>;
   registerPlayer?: Resolver<ResolversTypes['Player'], ParentType, ContextType, RequireFields<MutationRegisterPlayerArgs, 'password' | 'username'>>;
   updateRoom?: Resolver<ResolversTypes['Room'], ParentType, ContextType, RequireFields<MutationUpdateRoomArgs, 'room'>>;
 };
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = {
   cards?: Resolver<Maybe<Array<ResolversTypes['Card']>>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -323,7 +355,7 @@ export type RoomResolvers<ContextType = any, ParentType extends ResolversParentT
   currentPlayer?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType>;
   deck?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
   discardPile?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   players?: Resolver<Maybe<Array<ResolversTypes['Player']>>, ParentType, ContextType>;
   roomState?: Resolver<Maybe<ResolversTypes['RoomState']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -333,10 +365,6 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   roomUpdated?: SubscriptionResolver<Maybe<ResolversTypes['Room']>, "roomUpdated", ParentType, ContextType, RequireFields<SubscriptionRoomUpdatedArgs, 'roomId'>>;
 };
 
-export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UUID'], any> {
-  name: 'UUID';
-}
-
 export type Resolvers<ContextType = any> = {
   Card?: CardResolvers<ContextType>;
   Deck?: DeckResolvers<ContextType>;
@@ -345,6 +373,5 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Room?: RoomResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
-  UUID?: GraphQLScalarType;
 };
 

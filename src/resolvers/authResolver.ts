@@ -14,7 +14,7 @@ export const loginPlayer = async ({ username, password }: { username: string; pa
   const playerRepository = AppDataSource.getRepository(PlayerORM);
   const player = await playerRepository.findOneBy({ username });
   if (player && (await bcrypt.compare(password, player.password))) {
-    return { id: player.id };
+    return { player};
   }
   
   return { error: { message: "Invalid credentials!"}}

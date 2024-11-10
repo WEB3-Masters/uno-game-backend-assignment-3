@@ -1,8 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { PlayerORM } from './playerORM';
 import { DeckORM } from './deckORM';
 import { v4 as uuid4 } from 'uuid';
-
 
 @Entity()
 export class RoomORM {
@@ -13,12 +12,14 @@ export class RoomORM {
   players: PlayerORM[];
 
   @OneToOne(() => DeckORM, (deck) => deck.room)
+  @JoinColumn({ name: 'deckId' })
   deck?: DeckORM;
 
   @Column('text', { default: 'WAITING' })
   roomState: 'WAITING' | 'IN_PROGRESS'
 
-  @OneToOne(() => DeckORM, (deck) => deck.room)
+  @OneToOne(() => DeckORM, (discardPile) => discardPile.room)
+  @JoinColumn({ name: 'discardPileId' })
   discardPile?: DeckORM;
 
   @OneToOne(() => PlayerORM, (player) => player.room)
