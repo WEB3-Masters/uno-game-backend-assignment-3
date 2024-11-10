@@ -1,5 +1,3 @@
-scalar UUID
-
 # Enum for Card types and colors
 enum CardType {
     SKIP
@@ -21,16 +19,15 @@ enum CardColor {
 enum RoomState {
     WAITING
     IN_PROGRESS
-    COMPLETED
 }
 
 type Deck {
-    id: UUID!
+    id: ID!
     cards: [Card!]!
 }
 
 type Card {
-    id: UUID!
+    id: ID!
     type: CardType!
     color: CardColor
     number: Int
@@ -38,32 +35,74 @@ type Card {
 }
 
 type Player {
-    id: UUID!
+    id: ID!
     username: String!
     password: String!
-    roomId: UUID
+    cards: [Card!]
+    room: Room
 }
 
 type Room {
     id: ID!
-    players: [Player!]!
     deck: Deck
     discardPile: Deck
     roomState: RoomState
-    hands: [Hand!]
-    currentHand: Hand
+    players: [Player!]
+    currentPlayer: Player
 }
 
-type Hand {
-    playerId: UUID!
-    cards: [Card!]!
+input RoomInput {
+    id: ID!
+    deck: DeckInput
+    discardPile: DeckInput
+    roomState: RoomState
+    players: [PlayerInput!]
+    currentPlayer: PlayerInput
+}
+
+input DeckInput {
+    id: ID!
+    cards: [CardInput!]!
+}
+
+input CardInput {
+    id: ID!
+    type: CardType!
+    color: CardColor
+    number: Int
+}
+
+input PlayerInput {
+    id: ID!
+    cards: [CardInput!]
+}
+
+# New input types for initial card creation
+input InitialCardInput {
+    type: CardType!
+    color: CardColor
+    number: Int
+}
+
+input InitialPlayerCardsInput {
+    playerId: ID!
+    cards: [InitialCardInput!]!
+}
+
+input InitialGameInput {
+    roomId: ID!
+    deckCards: [InitialCardInput!]!
+    pileCards: [InitialCardInput!]!
+    playerCards: [InitialPlayerCardsInput!]!
+    roomState: RoomState!
+    currentPlayerId: ID
 }
 
 # Queries for fetching player(s)
 type Query {
-    player(id: UUID!): Player
+    player(id: ID!): Player
     players: [Player!]!
-    room(id: UUID!): Room
+    room(id: ID!): Room
     rooms: [Room!]!
 }
 
@@ -72,20 +111,22 @@ type Mutation {
     registerPlayer(username: String!, password: String!): Player!
 
     # Authenticates a player and returns a token or similar string
-    loginPlayer(username: String!, password: String!): String
+    loginPlayer(username: String!, password: String!): Player!
 
     # Creates a new game with the host's player ID
-    createRoom(hostId: UUID!): Room!
-    deleteRoom(id: UUID!): Boolean
+    createRoom(hostId: ID!): Room!
+    deleteRoom(id: ID!): Boolean
 
     # Allows a player to join a game
-    joinRoom(roomId: UUID!, playerId: UUID!): Room!
+    joinRoom(roomId: ID!, playerId: ID!): Room!
 
-    # Plays a hand in the game by specifying game ID, the next player ID, and a list of cards played
-    #playHand(gameId: UUID!, nextPlayerId: UUID!, cards: [String!]!): Room!
+    # Updates room state and handles game actions
+    updateRoom(room: RoomInput!): Room!
+
+    # New mutation for initializing a game with cards
+    initializeGame(gameInput: InitialGameInput!): Room!
 }
 
 type Subscription {
-  roomUpdated(roomId: UUID!): Room!
+  roomUpdated(roomId: ID!): Room
 }
-

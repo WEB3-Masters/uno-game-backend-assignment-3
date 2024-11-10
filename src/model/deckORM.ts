@@ -1,7 +1,7 @@
-import {Entity, PrimaryGeneratedColumn, OneToMany, OneToOne} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
 import { CardORM } from './cardORM';
 import { v4 as uuid4 } from 'uuid';
-import {RoomORM} from "./roomORM";
+import { RoomORM}  from "./roomORM";
 
 @Entity()
 export class DeckORM {

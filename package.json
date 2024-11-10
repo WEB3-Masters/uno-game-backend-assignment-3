@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "compile": "rimraf dist && graphql-codegen --config codegen.yml && tsc",
-    "generateFromSchema": "graphql-codegen --config codegen.yml",
+    "codegen": "graphql-codegen --config codegen.yml",
     "start": "tsx src/server.ts"
   },
   "keywords": [],

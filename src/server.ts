@@ -1,11 +1,11 @@
 // Initialize TypeORM data source
-import {AppDataSource} from "./utils/db";
+import { AppDataSource } from "./utils/db";
 import express from "express";
 import http from "http";
-import {ApolloServer} from "@apollo/server";
-import {execSchema, MyContext} from "./execSchema";
-import {ApolloServerPluginDrainHttpServer} from "@apollo/server/plugin/drainHttpServer";
-import {expressMiddleware} from "@apollo/server/express4";
+import { ApolloServer } from "@apollo/server";
+import { execSchema, MyContext } from "./execSchema";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { expressMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import pkg from 'body-parser';
 import { WebSocketServer } from 'ws';
